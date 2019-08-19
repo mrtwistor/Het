@@ -112,8 +112,9 @@ findMatch cards =
   do
     x<-cards
     y<-cards
+    guard $ x < y
     z<-cards
-    guard $ x < y && y < z
+    guard $ y < z
     guard $ matchAll [x,y,z]
     return (x,y,z)
 
@@ -124,10 +125,13 @@ matchSelected :: Board -> Bool
 matchSelected board =
   or $ do
     x<-board
+    guard $ selected x
     y<-board
+    guard $ selected y
+    guard $ x < y
     z<-board
-    guard $ selected x && selected y && selected z
-    guard $ x < y && y < z
+    guard $ selected z
+    guard $ y < z
     return $ matchAll [card x,card y,card z]
 
 
@@ -198,7 +202,11 @@ pointToCoords (posx, posy) =
 
 
 getBlockAt :: Int -> Int -> World -> Maybe Block
-getBlockAt x y w = (w^.board)^?(ix $ x+xsize*y)
+getBlockAt x y w =
+  do
+    guard $ x >= 0 && x < xsize
+    guard $ y >= 0 && y < ysize
+    (w^.board)^?(ix $ x+xsize*y)
 
 
 handleSelect :: Int -> Int -> World -> World
