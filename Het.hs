@@ -138,6 +138,22 @@ dealHand = do
   deck0 <- use deck
   board0 <- use board
   let l = length board0
+      matches = findMatch (card <$> board0)
+  if l >= 12
+    then
+       case matches of
+         []  -> case deck0 of
+                  []  -> return True
+                  _:_ -> dealHand1
+         _:_ -> return False
+     else dealHand1
+
+
+dealHand1 :: GameState Done
+dealHand1 = do
+  deck0 <- use deck
+  board0 <- use board
+  let l = length board0
       nCards = max 3 (12 - l)
       (newCards, deck1) = splitAt nCards deck0
       newBlocks = newBlock <$> newCards
@@ -148,7 +164,7 @@ dealHand = do
   case matches of
     []  -> case deck1 of
             []  -> return True
-            _:_ -> dealHand
+            _:_ -> if l >= 12 then return False else dealHand1
     _:_ -> return False
 
 
